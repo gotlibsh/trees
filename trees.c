@@ -312,6 +312,42 @@ int* get_binary_tree_in_post_order(const Node* root, int* out_arr_size)
     return arr;
 }
 
+// helper function, do NOT call this directly
+void get_binary_tree_mirror_helper(const Node* root, Node** mirror)
+{
+    if(root == NULL)
+        return;
+    
+    *mirror = create_node_with_data(root->data);
+    
+    get_binary_tree_mirror_helper(root->left, &((*mirror)->right));
+    get_binary_tree_mirror_helper(root->right, &((*mirror)->left));
+}
+
+// returns a new allocated binary tree which reflects a mirror of the given tree
+Node* get_binary_tree_mirror(const Node* root)
+{
+    Node* mirrored;
+    
+    get_binary_tree_mirror_helper(root, &mirrored);
+    
+    return mirrored;
+}
+
+// mirrorizes the given binary tree
+void mirrorize_binary_tree(Node* root)
+{
+    if(root == NULL)
+        return;
+    
+    Node* temp = root->left;
+    root->left = root->right;
+    root->right = temp;
+    
+    mirrorize_binary_tree(root->left);
+    mirrorize_binary_tree(root->right);
+}
+
 // prints an array of integers
 void print_int_array(int* arr, int size)
 {
@@ -366,34 +402,45 @@ void build_binary_tree_from_preorder_and_inorder(Node** proot, int* pre_order, i
 // main function
 int main()
 {
-    Node* root = NULL, *new_tree = NULL, *temp;
+    Node* root = NULL, *new_tree = NULL, *temp, *mirrored;
     int* pre_order_array, *in_order_array, *post_order_array;
     int arr_size, max_data = 10;
     bool no_duplicates = false, with_duplicates = true;
     
     srand(time(NULL));
     
+    printf("building tree...\n");
     for(int i = 0; i < max_data; i++)
     {
         int data = rand() % max_data;
         temp = create_node_with_data(data);
         
-        if(!add_node_to_binary_search_tree(&root, temp, no_duplicates))
+        if(!add_node_to_binary_search_tree(&root, temp, with_duplicates))
             free(temp);
     }
     printf("tree built!\n");
     
-    printf("post-order: \n");
-    pre_order_array = get_binary_tree_in_pre_order(root, &arr_size);
-    in_order_array = get_binary_tree_in_in_order(root, NULL);
-    post_order_array = get_binary_tree_in_post_order(root, NULL);
+    printf("\nregular:  ");
+    print_binary_tree_in_order(root);
+    printf("\nmirrored: ");
+    mirrorize_binary_tree(root);
+    print_binary_tree_in_order(root);
+    printf("\nmirrored: ");
+    print_binary_tree_in_order(get_binary_tree_mirror(root));
     
-    printf("\npre:  ");
-    print_int_array(pre_order_array, arr_size);
-    printf("\nin:   ");
-    print_int_array(in_order_array, arr_size);
-    printf("\npost: ");
-    print_int_array(post_order_array, arr_size); 
+    //printf("post-order: \n");
+    //pre_order_array = get_binary_tree_in_pre_order(root, &arr_size);
+    //in_order_array = get_binary_tree_in_in_order(root, NULL);
+    //post_order_array = get_binary_tree_in_post_order(root, NULL);
+    
+    //printf("\npre:  ");
+    //print_int_array(pre_order_array, arr_size);
+    //printf("\nin:   ");
+    //print_int_array(in_order_array, arr_size);
+    //printf("\npost: ");
+    //print_int_array(post_order_array, arr_size); 
+    //printf("\npost: ");
+    //print_binary_tree_post_order(root);
     //pre_order_array = get_binary_tree_in_pre_order(root, &arr_size);
     //printf("pre-array: ");
     //print_int_array(pre_order_array, arr_size);
@@ -421,6 +468,7 @@ int main()
 
     // clean-up
     free_tree(&root);
+    //free_tree(&mirrored);
     //free_tree(&new_tree);
     //free(pre_order_array);
     //free(in_order_array);
