@@ -73,7 +73,7 @@ bool add_node_to_binary_search_tree(Node** proot, Node* new_node, bool duplicate
         *proot = new_node;
         return true;
     }
-        
+    
     if(new_node->data > (*proot)->data)
         return add_node_to_binary_search_tree(&((*proot)->right), new_node, duplicate);
     else if(new_node->data < (*proot)->data || duplicate)
@@ -133,12 +133,6 @@ void print_binary_search_tree_sorted(const Node* root)
     print_binary_tree_in_order(root);
 }
 
-// prints a binary tree by level
-void print_binary_tree_by_level(const Node* root)
-{
-    
-}
-
 // helper function, do NOT call this directly
 unsigned int get_binary_tree_depth_helper(const Node* root, int depth)
 {
@@ -181,6 +175,42 @@ unsigned int get_binary_tree_depth_efficient(const Node* root)
     get_binary_tree_depth_efficient_helper(root, &max_level, 0);
     
     return max_level;
+}
+
+// helper function, do NOT call this directly
+void print_binary_tree_specific_level_helper(const Node* root, int desired_level, int current_level)
+{
+    if(root == NULL)
+        return;
+    
+    if(current_level == desired_level)
+    {
+        printf("%d ", root->data);
+        return;
+    }
+    
+    print_binary_tree_specific_level_helper(root->left, desired_level, current_level + 1);
+    print_binary_tree_specific_level_helper(root->right, desired_level, current_level + 1);
+}
+
+// prints a given level of a given binary tree
+void print_binary_tree_specific_level(const Node* root, int level)
+{
+    print_binary_tree_specific_level_helper(root, level, 0);
+}
+
+// prints a binary tree by level
+void print_binary_tree_by_level(const Node* root)
+{
+    unsigned int depth, level;
+    
+    depth = get_binary_tree_depth_efficient(root);
+    
+    for(level = 0; level <= depth; level++)
+    {
+        print_binary_tree_specific_level(root, level);
+        printf("\n");
+    }
 }
 
 // returns a pointer to the first tree node with the specified data if found, otherwise null
@@ -422,12 +452,13 @@ int main()
     
     printf("\nregular:  ");
     print_binary_tree_in_order(root);
+    printf("\ntree by level:\n");
+    print_binary_tree_by_level(root);
     printf("\nmirrored: ");
     mirrorize_binary_tree(root);
     print_binary_tree_in_order(root);
-    printf("\nmirrored: ");
-    print_binary_tree_in_order(get_binary_tree_mirror(root));
-    
+    printf("\ntree by level:\n");
+    print_binary_tree_by_level(root);
     //printf("post-order: \n");
     //pre_order_array = get_binary_tree_in_pre_order(root, &arr_size);
     //in_order_array = get_binary_tree_in_in_order(root, NULL);
