@@ -1,10 +1,6 @@
-/******************************************************************************
-
-                            Online C Compiler.
-                Code, Compile, Run and Debug C program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
+/************************************************************************************
+This is a collection of various functions and algorithms handling tree data-structure
+************************************************************************************/
 
 #include <stdio.h>
 #include <time.h>
@@ -173,7 +169,7 @@ void get_binary_tree_depth_efficient_helper(const Node* root, unsigned int* max_
     get_binary_tree_depth_efficient_helper(root->right, max_level, cur_level+1);
 }
 
-// returns the depth of a binary tree
+// returns the depth of a binary tree, this is a more efficient algorithm
 // if root is NULL -1 is returned, if root is the only node in the tree 0 is returned, etc.
 unsigned int get_binary_tree_depth_efficient(const Node* root)
 {
@@ -282,6 +278,40 @@ int* get_binary_tree_in_in_order(const Node* root, int* out_arr_size)
     return arr;
 }
 
+// helper function, do NOT call this directly
+void get_binary_tree_in_post_order_helper(const Node* root, int* arr, int* index)
+{
+    if(root == NULL)
+        return;
+        
+    get_binary_tree_in_post_order_helper(root->left, arr, index);
+    get_binary_tree_in_post_order_helper(root->right, arr, index);
+    
+    arr[(*index)] = root->data;
+    (*index)++;
+}
+
+// returns a new allocated array containing a binary-tree's data in post-order
+// assigns the array-size to out_arr_size parameter
+int* get_binary_tree_in_post_order(const Node* root, int* out_arr_size)
+{
+    int* arr;
+    int tree_size, index = 0;
+    
+    tree_size = get_binary_tree_size(root);
+    arr = (int*)malloc(tree_size * sizeof(int));
+    
+    if(arr == NULL)
+        exit(EXIT_FAILURE);
+        
+    get_binary_tree_in_post_order_helper(root, arr, &index);
+        
+    if(out_arr_size != NULL)
+        *out_arr_size = tree_size;
+    
+    return arr;
+}
+
 // prints an array of integers
 void print_int_array(int* arr, int size)
 {
@@ -337,8 +367,8 @@ void build_binary_tree_from_preorder_and_inorder(Node** proot, int* pre_order, i
 int main()
 {
     Node* root = NULL, *new_tree = NULL, *temp;
-    int* pre_order_array, *in_order_array;
-    int arr_size, max_data = 10000000;
+    int* pre_order_array, *in_order_array, *post_order_array;
+    int arr_size, max_data = 10;
     bool no_duplicates = false, with_duplicates = true;
     
     srand(time(NULL));
@@ -347,12 +377,23 @@ int main()
     {
         int data = rand() % max_data;
         temp = create_node_with_data(data);
+        
         if(!add_node_to_binary_search_tree(&root, temp, no_duplicates))
             free(temp);
-        //printf("depth of the tree is: %d\n", get_binary_tree_depth(root));
-        //printf("adding: %d\n", data);
     }
     printf("tree built!\n");
+    
+    printf("post-order: \n");
+    pre_order_array = get_binary_tree_in_pre_order(root, &arr_size);
+    in_order_array = get_binary_tree_in_in_order(root, NULL);
+    post_order_array = get_binary_tree_in_post_order(root, NULL);
+    
+    printf("\npre:  ");
+    print_int_array(pre_order_array, arr_size);
+    printf("\nin:   ");
+    print_int_array(in_order_array, arr_size);
+    printf("\npost: ");
+    print_int_array(post_order_array, arr_size); 
     //pre_order_array = get_binary_tree_in_pre_order(root, &arr_size);
     //printf("pre-array: ");
     //print_int_array(pre_order_array, arr_size);
@@ -367,7 +408,7 @@ int main()
     //printf("\nnew, in:  ");
     //print_binary_tree_in_order(new_tree);
 
-    printf("size of tree: %d\n", get_binary_tree_size(root));
+    printf("\nsize of tree: %d\n", get_binary_tree_size(root));
 
     printf("tree depth: %d\n", get_binary_tree_depth_efficient(root));
     //printf("new-tree depth: %d\n", get_binary_tree_depth_efficient(new_tree));
